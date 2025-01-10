@@ -1,7 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
 import { Col, Row, Modal } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup"; 
 
@@ -10,7 +8,6 @@ interface CreateTaskProps {
   type: string;
   handleClose: () => void;
   fetch: () => void;
-  editTask: object;
 }
 
 const CreateTask: React.FC<CreateTaskProps> = ({
@@ -20,7 +17,6 @@ const CreateTask: React.FC<CreateTaskProps> = ({
   fetch,
   editTask,
 }) => {
-  const navigate = useNavigate();
   const token = localStorage.getItem("USER");
   const parsedToken = JSON.parse(token);
   const user_id = parsedToken?.userIsExist?._id;

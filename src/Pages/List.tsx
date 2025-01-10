@@ -40,7 +40,7 @@ const List = () => {
 
   const [sortOrder, setSortOrder] = useState<string>("asc");
   const [sortBy, setSortBy] = useState<string>("dueDate");
-  const [searchTerm, setSearchTerm] = useState<string>(""); 
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
 
   const token = localStorage.getItem("USER");
@@ -53,11 +53,14 @@ const List = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("https://thealterofficebackend.onrender.com/todo/get", {
-        headers: {
-          Authorization: parsedToken.token,
-        },
-      });
+      const res = await axios.get(
+        "https://thealterofficebackend.onrender.com/todo/get",
+        {
+          headers: {
+            Authorization: parsedToken.token,
+          },
+        }
+      );
       setToDData(res.data.data);
     } catch (error) {
       console.log(error);
@@ -79,11 +82,14 @@ const List = () => {
   };
   const handleDelete = async (taskId: string) => {
     try {
-      await axios.delete(`https://thealterofficebackend.onrender.com/todo/delete/${taskId}`, {
-        headers: {
-          Authorization: parsedToken.token,
-        },
-      });
+      await axios.delete(
+        `https://thealterofficebackend.onrender.com/todo/delete/${taskId}`,
+        {
+          headers: {
+            Authorization: parsedToken.token,
+          },
+        }
+      );
 
       setToDData((prevTasks) =>
         prevTasks.filter((task) => task._id !== taskId)
@@ -113,7 +119,7 @@ const List = () => {
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value.toLowerCase()); 
+    setSearchTerm(e.target.value.toLowerCase());
   };
 
   const handleCategoryFilterChange = (
@@ -132,19 +138,18 @@ const List = () => {
       return;
     }
 
-    const tasksCopy = [...todoData]; 
-    const [movedTask] = tasksCopy.splice(source.index, 1); 
-    movedTask.status = destination.droppableId; 
-    tasksCopy.splice(destination.index, 0, movedTask); 
+    const tasksCopy = [...todoData];
+    const [movedTask] = tasksCopy.splice(source.index, 1);
+    movedTask.status = destination.droppableId;
+    tasksCopy.splice(destination.index, 0, movedTask);
 
-  
-    setTasks(tasksCopy); 
+    setToDData(tasksCopy);
   };
 
   const renderTasks = (status: string) => {
     const filteredTasks = todoData
       .filter((task: Task) => task.status === status)
-      .filter((task: Task) => task.task_name.toLowerCase().includes(searchTerm)) 
+      .filter((task: Task) => task.task_name.toLowerCase().includes(searchTerm))
       .filter((task: Task) => task.category.includes(categoryFilter));
 
     const sortedTasks = filteredTasks.sort((a, b) => {
@@ -380,17 +385,25 @@ const List = () => {
             type="text"
             placeholder="Search tasks..."
             value={searchTerm}
-            onChange={handleSearchChange} 
-            className="form-control mb-3"
-            style={{ width: "200px" }}
+            onChange={handleSearchChange}
+            className="form-control mb-3 ps-3"
+            style={{
+              height: "42px",
+              width: "200px",
+              borderRadius: "20px",
+              border: "1px solid black",
+            }}
           />
           <button
             style={{
               height: "42px",
-              width: "150px",
-              borderRadius: "8px",
-              backgroundColor: "#ECF3FD",
+              width: "100px",
+              backgroundColor: "#7B1984",
+              borderRadius: "20px",
+              border: "none",
+              color: "white",
             }}
+            className="mb-2 mb-lg-0"
             onClick={handleShow}
           >
             Add Task

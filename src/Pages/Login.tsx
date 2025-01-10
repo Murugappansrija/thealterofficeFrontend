@@ -1,54 +1,14 @@
 import React from "react";
 import { useState } from "react";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { MdOutlineEventNote } from "react-icons/md";
-import { FaGoogle } from "react-icons/fa";
 import Cover from "../assets/coverImg.png";
 import axios from "axios";
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const auth = getAuth();
 
-  const [authenticate, setAuthenticate] = useState(false);
-  const [error, setError] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const signInWithGoogle = async () => {
-    try {
-      const signPopUp = await signInWithPopup(auth, new GoogleAuthProvider());
-      console.log(signPopUp);
-      navigate("/");
-    } catch (error) {
-      setAuthenticate(false);
-      console.log(error);
-    }
-  };
-
-  const signInwithEmail = async () => {
-    try {
-      setAuthenticate(true);
-      setError("");
-      const emailAndPassword = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      console.log(emailAndPassword);
-      navigate("/");
-    } catch (error) {
-      setAuthenticate(false);
-      setError(error.message);
-      console.log(error);
-    }
-  };
   const [formValue, setForm] = useState({
     email: "",
     password: "",
@@ -60,7 +20,6 @@ const Login: React.FC = () => {
   };
   console.log(formValue);
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("ftrigger");
     e.preventDefault();
     try {
       const res = await axios.post(
@@ -68,11 +27,11 @@ const Login: React.FC = () => {
         formValue
       );
       if (res.data.statusCode === 200) {
-        const stringify = localStorage.setItem(
+        localStorage.setItem(
           "USER",
           JSON.stringify(res.data.data)
         );
-        navigate("/");
+        navigate("/home");
       }
     } catch (error: any) {
       console.log(error.message);
@@ -81,7 +40,7 @@ const Login: React.FC = () => {
   return (
     <Container
       fluid
-      className="bg-success vh-100 d-flex justify-content-center align-items-center"
+      className=" vh-100 d-flex justify-content-center align-items-center"
       style={{ overflow: "hidden", position: "relative" }}
     >
       <Row className="w-100">
@@ -108,7 +67,10 @@ const Login: React.FC = () => {
             </div>
 
             <div className="mt-3">
-              <p className="fw-medium text-a" style={{ fontSize: "11px" }}>
+              <p
+                className="fw-medium text-a"
+                style={{ fontSize: "11px", color: "black" }}
+              >
                 Streamline your workflow and track progress effortlessly with
                 our all-in-one task management app.
               </p>
@@ -141,7 +103,9 @@ const Login: React.FC = () => {
                       />
                     </div>
 
-                    <p>For testing email: admin@gmail.com, password: 12345</p>
+                    <p style={{ color: "black" }}>
+                      For testing email: admin@gmail.com, password: 12345
+                    </p>
 
                     {/* Button placed inside the form to trigger submit */}
                     <Button

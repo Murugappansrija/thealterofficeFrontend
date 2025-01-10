@@ -12,7 +12,7 @@ const TopBar = () => {
   const navigate = useNavigate();
   const handleLogOut = () => {
     localStorage.removeItem("USER");
-    navigate("/login");
+    navigate("/");
   };
   return (
     <Container>

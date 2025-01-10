@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import TopBar from "../Component/TopBar";
 import { CardBody, Col, Container, Row } from "react-bootstrap";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -87,9 +87,7 @@ const Board = () => {
     setToDData(updatedCards);
   };
 
-  const handleAddNewCard = () => {
-    console.log("Add New Card");
-  };
+  
 
   const handleDelete = async (taskId: string) => {
     try {
