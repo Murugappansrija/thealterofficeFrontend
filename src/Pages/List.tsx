@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import {
   IoIosArrowDropdownCircle,
   IoIosArrowDropupCircle,
 } from "react-icons/io";
 import CreateTask from "../Component/CreateTask";
 import TopBar from "../Component/TopBar";
-import { dummy } from "../Component/dummyData";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+
 import axios from "axios";
 import {
   DropdownItem,
@@ -44,9 +43,12 @@ const List = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("");
 
   const token = localStorage.getItem("USER");
-  const parsedToken = JSON.parse(token);
-  console.log(parsedToken.token);
-
+  let parsedToken;
+  if (token !== null) {
+    parsedToken = JSON.parse(token);
+  } else {
+    throw new Error("Token is null. Cannot parse.");
+  }
   useEffect(() => {
     fetchData();
   }, []);
@@ -127,30 +129,14 @@ const List = () => {
   ) => {
     setCategoryFilter(e.target.value);
   };
-  const onDragEnd = (result: any) => {
-    const { destination, source } = result;
-
-    if (
-      !destination ||
-      (source.droppableId === destination.droppableId &&
-        source.index === destination.index)
-    ) {
-      return;
-    }
-
-    const tasksCopy = [...todoData];
-    const [movedTask] = tasksCopy.splice(source.index, 1);
-    movedTask.status = destination.droppableId;
-    tasksCopy.splice(destination.index, 0, movedTask);
-
-    setToDData(tasksCopy);
-  };
 
   const renderTasks = (status: string) => {
-    const filteredTasks = todoData
-      .filter((task: Task) => task.status === status)
-      .filter((task: Task) => task.task_name.toLowerCase().includes(searchTerm))
-      .filter((task: Task) => task.category.includes(categoryFilter));
+    const filteredTasks = todoData.filter((task: Task) => {
+      const isStatusMatch = task.status === status;
+      const isSearchMatch = task.task_name.toLowerCase().includes(searchTerm);
+      const isCategoryMatch = task.category.includes(categoryFilter);
+      return isStatusMatch && isSearchMatch && isCategoryMatch;
+    });
 
     const sortedTasks = filteredTasks.sort((a, b) => {
       const fieldA =
@@ -167,68 +153,47 @@ const List = () => {
     });
 
     return (
-      <Droppable droppableId={status}>
-        {(provided) => (
-          <tbody {...provided.droppableProps} ref={provided.innerRef}>
-            {sortedTasks.map((task, index) => (
-              <Draggable
-                key={task._id}
-                draggableId={task._id.toString()}
-                index={index}
-              >
-                {(provided) => (
-                  <tr
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                  >
-                    <td className="p-2">{task.task_name}</td>
-                    {!mobileView && (
-                      <>
-                        <td className="p-2">
-                          {new Date(task?.due_date).toLocaleDateString(
-                            "en-US",
-                            {
-                              day: "2-digit",
-                              month: "long",
-                              year: "numeric",
-                            }
-                          )}
-                        </td>
-                        <td className="p-2">{task.status}</td>
-                        <td className="p-2">{task.category}</td>
-                        <td className="p-2">
-                          <UncontrolledDropdown className="float-end">
-                            <DropdownToggle
-                              className="arrow-none"
-                              color="white"
-                            >
-                              <BsThreeDots />
-                            </DropdownToggle>
-                            <DropdownMenu className="dropdown-menu-end">
-                              <DropdownItem
-                                onClick={() => handleEditShow(task)}
-                              >
-                                Edit
-                              </DropdownItem>
-                              <DropdownItem
-                                onClick={() => handleDelete(task._id)}
-                              >
-                                Delete
-                              </DropdownItem>
-                            </DropdownMenu>
-                          </UncontrolledDropdown>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </tbody>
-        )}
-      </Droppable>
+      <tbody>
+        {sortedTasks.map((task) => {
+          const { task_name, due_date, status, category, _id } = task;
+          const formattedDueDate = new Date(due_date).toLocaleDateString(
+            "en-US",
+            {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            }
+          );
+
+          return (
+            <tr key={_id}>
+              <td className="p-2">{task_name}</td>
+              {!mobileView && (
+                <>
+                  <td className="p-2">{formattedDueDate}</td>
+                  <td className="p-2">{status}</td>
+                  <td className="p-2">{category}</td>
+                  <td className="p-2">
+                    <UncontrolledDropdown className="float-end">
+                      <DropdownToggle className="arrow-none" color="white">
+                        <BsThreeDots />
+                      </DropdownToggle>
+                      <DropdownMenu className="dropdown-menu-end">
+                        <DropdownItem onClick={() => handleEditShow(task)}>
+                          Edit
+                        </DropdownItem>
+                        <DropdownItem onClick={() => handleDelete(_id)}>
+                          Delete
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </UncontrolledDropdown>
+                  </td>
+                </>
+              )}
+            </tr>
+          );
+        })}
+      </tbody>
     );
   };
 
@@ -250,7 +215,7 @@ const List = () => {
                   style={{ cursor: "pointer" }}
                 >
                   Due Date
-                  <span className="ml-0" style={{ float: "right " }}>
+                  <span className="ml-0" style={{ float: "right" }}>
                     {sortOrder === "asc" ? (
                       <IoIosArrowDropupCircle />
                     ) : (
@@ -265,86 +230,84 @@ const List = () => {
             )}
           </tr>
         </thead>
-        <DragDropContext onDragEnd={onDragEnd}>
-          <tr>
-            <td
-              colSpan={mobileView ? 1 : 5}
-              className="card-header"
-              style={{
-                backgroundColor: "#FAC3FF",
-                fontWeight: "bold",
-                cursor: "pointer",
-                borderRadius: "10px",
-                padding: "5px",
-              }}
-              onClick={() => toggleSection("TODO")}
-            >
-              {`TO-DO `}
-              <span style={{ float: "right" }}>
-                {isExpanded.TODO ? (
-                  <IoIosArrowDropupCircle />
-                ) : (
-                  <IoIosArrowDropdownCircle />
-                )}
-              </span>
-            </td>
-          </tr>
-          {isExpanded.TODO && renderTasks("TO-DO")}
 
-          <tr>
-            <td
-              colSpan={mobileView ? 1 : 5}
-              style={{
-                backgroundColor: "#85D9F1",
-                fontWeight: "bold",
-                cursor: "pointer",
-                padding: "5px",
-                borderRadius: "10px",
-              }}
-              onClick={() => toggleSection("IN-PROGRESS")}
-            >
-              IN-PROGRESS{" "}
-              <span style={{ float: "right" }}>
-                {isExpanded["IN-PROGRESS"] ? (
-                  <IoIosArrowDropupCircle />
-                ) : (
-                  <IoIosArrowDropdownCircle />
-                )}
-              </span>
-            </td>
-          </tr>
-          {isExpanded["IN-PROGRESS"] && renderTasks("IN-PROGRESS")}
+        <tr>
+          <td
+            colSpan={mobileView ? 1 : 5}
+            className="card-header"
+            style={{
+              backgroundColor: "#FAC3FF",
+              fontWeight: "bold",
+              cursor: "pointer",
+              borderRadius: "10px",
+              padding: "5px",
+            }}
+            onClick={() => toggleSection("TODO")}
+          >
+            {`TO-DO `}
+            <span style={{ float: "right" }}>
+              {isExpanded.TODO ? (
+                <IoIosArrowDropupCircle />
+              ) : (
+                <IoIosArrowDropdownCircle />
+              )}
+            </span>
+          </td>
+        </tr>
+        {isExpanded.TODO && renderTasks("TO-DO")}
 
-          <tr>
-            <td
-              colSpan={mobileView ? 1 : 5}
-              className="card-header"
-              style={{
-                backgroundColor: "#CEFFCC",
-                fontWeight: "bold",
-                cursor: "pointer",
-                padding: "5px",
-                borderRadius: "10px",
-                marginTop: "50px",
-              }}
-              onClick={() => toggleSection("COMPLETED")}
-            >
-              COMPLETED{" "}
-              <span style={{ float: "right" }}>
-                {isExpanded.COMPLETED ? (
-                  <IoIosArrowDropupCircle />
-                ) : (
-                  <IoIosArrowDropdownCircle />
-                )}
-              </span>
-            </td>
-          </tr>
-          {isExpanded.COMPLETED && renderTasks("COMPLETED")}
-        </DragDropContext>
+        <tr>
+          <td
+            colSpan={mobileView ? 1 : 5}
+            style={{
+              backgroundColor: "#85D9F1",
+              fontWeight: "bold",
+              cursor: "pointer",
+              padding: "5px",
+              borderRadius: "10px",
+            }}
+            onClick={() => toggleSection("IN-PROGRESS")}
+          >
+            IN-PROGRESS{" "}
+            <span style={{ float: "right" }}>
+              {isExpanded["IN-PROGRESS"] ? (
+                <IoIosArrowDropupCircle />
+              ) : (
+                <IoIosArrowDropdownCircle />
+              )}
+            </span>
+          </td>
+        </tr>
+        {isExpanded["IN-PROGRESS"] && renderTasks("IN-PROGRESS")}
+
+        <tr>
+          <td
+            colSpan={mobileView ? 1 : 5}
+            className="card-header"
+            style={{
+              backgroundColor: "#CEFFCC",
+              fontWeight: "bold",
+              cursor: "pointer",
+              padding: "5px",
+              borderRadius: "10px",
+              marginTop: "50px",
+            }}
+            onClick={() => toggleSection("COMPLETED")}
+          >
+            COMPLETED{" "}
+            <span style={{ float: "right" }}>
+              {isExpanded.COMPLETED ? (
+                <IoIosArrowDropupCircle />
+              ) : (
+                <IoIosArrowDropdownCircle />
+              )}
+            </span>
+          </td>
+        </tr>
+        {isExpanded.COMPLETED && renderTasks("COMPLETED")}
       </table>
     </div>
   );
-
   return (
     <Container fluid>
       <Row>
@@ -422,7 +385,7 @@ const List = () => {
         handleClose={handleEditClose}
         type="EDIT"
         fetch={fetchData}
-        editTask={editTask}
+        editTask={editTask || undefined}
       />
     </Container>
   );

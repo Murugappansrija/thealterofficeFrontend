@@ -1,13 +1,28 @@
 import axios from "axios";
 import { Col, Row, Modal } from "react-bootstrap";
 import { Formik, Field, Form, ErrorMessage } from "formik";
-import * as Yup from "yup"; 
+import * as Yup from "yup";
+
+interface Task {
+  _id: string;
+  task_name: string;
+  due_date: string; // ISO 8601 Date as a string
+  status: string;
+  category: string;
+  createdBy: string;
+  createdAt: string; // ISO 8601 Date as a string
+  __v: number;
+  attachment: string | null; // Optional attachment
+  description: string;
+  updatedAt: string; // ISO 8601 Date as a string
+}
 
 interface CreateTaskProps {
   show: boolean;
   type: string;
   handleClose: () => void;
   fetch: () => void;
+  editTask?: Task;
 }
 
 const CreateTask: React.FC<CreateTaskProps> = ({
@@ -17,8 +32,14 @@ const CreateTask: React.FC<CreateTaskProps> = ({
   fetch,
   editTask,
 }) => {
+  console.log(editTask);
   const token = localStorage.getItem("USER");
-  const parsedToken = JSON.parse(token);
+  let parsedToken;
+  if (token !== null) {
+    parsedToken = JSON.parse(token);
+  } else {
+    throw new Error("Token is null. Cannot parse.");
+  }
   const user_id = parsedToken?.userIsExist?._id;
 
   const initialValues = {
@@ -48,14 +69,18 @@ const CreateTask: React.FC<CreateTaskProps> = ({
     if (target.files && target.files[0]) {
     }
   };
-console.log(editTask?._id)
+  console.log(editTask?._id);
   const handleSubmit = async (values: any) => {
     try {
-      const res = await axios.post("https://thealterofficebackend.onrender.com/todo/add", values, {
-        headers: {
-          Authorization: parsedToken.token,
-        },
-      });
+      const res = await axios.post(
+        "https://thealterofficebackend.onrender.com/todo/add",
+        values,
+        {
+          headers: {
+            Authorization: parsedToken.token,
+          },
+        }
+      );
 
       if (res.status === 201) {
         handleClose();
@@ -67,11 +92,15 @@ console.log(editTask?._id)
   };
   const handleEdit = async (values: any) => {
     try {
-      const res = await axios.put(`https://thealterofficebackend.onrender.com/todo/edit/${editTask?._id}`, values, {
-        headers: {
-          Authorization: parsedToken.token,
-        },
-      });
+      const res = await axios.put(
+        `https://thealterofficebackend.onrender.com/todo/edit/${editTask?._id}`,
+        values,
+        {
+          headers: {
+            Authorization: parsedToken.token,
+          },
+        }
+      );
 
       if (res.status === 200) {
         handleClose();
@@ -81,7 +110,6 @@ console.log(editTask?._id)
       console.log(error);
     }
   };
-
 
   return (
     <Modal show={show} onHide={handleClose} centered size="xl">
@@ -100,9 +128,9 @@ console.log(editTask?._id)
               initialValues={initialValues}
               validationSchema={validationSchema}
               onSubmit={type === "EDIT" ? handleEdit : handleSubmit}
-              >
-              {({ setFieldValue, values, errors, touched }) => (
-                <Form >
+            >
+              {({ setFieldValue, values }) => (
+                <Form>
                   {/* Task Title */}
                   <Field
                     name="task_name"
@@ -120,11 +148,9 @@ console.log(editTask?._id)
                       borderRadius: "4px",
                     }}
                   />
-                  <ErrorMessage
-                    name="task_name"
-                    component="div"
-                    style={{ color: "red" }}
-                  />
+                  <div style={{ color: "red" }}>
+                    <ErrorMessage name="taskName" component="div" />
+                  </div>
 
                   {/* Description */}
                   <Field
@@ -142,11 +168,9 @@ console.log(editTask?._id)
                       paddingLeft: "10px",
                     }}
                   />
-                  <ErrorMessage
-                    name="description"
-                    component="div"
-                    style={{ color: "red" }}
-                  />
+                  <div style={{ color: "red" }}>
+                    <ErrorMessage name="taskName" component="div" />
+                  </div>
 
                   {/* Category Buttons */}
                   <div className="d-flex flex-column flex-sm-row justify-content-sm-between mt-3">
@@ -198,11 +222,9 @@ console.log(editTask?._id)
                           Personal
                         </button>
                       </div>
-                      <ErrorMessage
-                        name="category"
-                        component="div"
-                        style={{ color: "red" }}
-                      />
+                      <div style={{ color: "red" }}>
+                        <ErrorMessage name="taskName" component="div" />
+                      </div>
                     </div>
 
                     {/* Due Date */}
@@ -229,11 +251,9 @@ console.log(editTask?._id)
                           paddingLeft: "10px",
                         }}
                       />
-                      <ErrorMessage
-                        name="due_date"
-                        component="div"
-                        style={{ color: "red" }}
-                      />
+                      <div style={{ color: "red" }}>
+                        <ErrorMessage name="taskName" component="div" />
+                      </div>
                     </div>
 
                     {/* Status */}
@@ -264,11 +284,9 @@ console.log(editTask?._id)
                         <option value="IN-PROGRESS">In-Progress</option>
                         <option value="COMPLETED">Completed</option>
                       </Field>
-                      <ErrorMessage
-                        name="status"
-                        component="div"
-                        style={{ color: "red" }}
-                      />
+                      <div style={{ color: "red" }}>
+                        <ErrorMessage name="taskName" component="div" />
+                      </div>
                     </div>
                   </div>
 

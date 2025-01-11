@@ -1,4 +1,3 @@
-import React from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { MdOutlineEventNote } from "react-icons/md";
 import UserIMG from "../assets/user.jpg";

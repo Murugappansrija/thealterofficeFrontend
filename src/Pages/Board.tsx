@@ -1,7 +1,6 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import TopBar from "../Component/TopBar";
 import { CardBody, Col, Container, Row } from "react-bootstrap";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   DropdownToggle,
   DropdownMenu,
@@ -12,18 +11,37 @@ import { BsThreeDots } from "react-icons/bs";
 import axios from "axios";
 import CreateTask from "../Component/CreateTask";
 
+interface Task {
+  _id: string;
+  task_name: string;
+  description?: string; // Optional property
+  due_date: string; // ISO date format
+  status: string; // Enum-like string
+  category: string;
+  createdBy: string;
+  createdAt: string; // ISO date format
+  updatedAt: string; // ISO date format
+  __v: number;
+  attachment?: string | null; // Optional property
+}
+
 const Board = () => {
-  const [toDoData, setToDData] = useState<any[]>([]);
+  const [toDoData, setToDData] = useState<Task[]>([]);
   const [show, setShow] = useState<boolean>(false);
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [editShow, setEditShow] = useState<boolean>(false);
-  const [editTask, setEditTask] = useState<Task | null>(null); 
+  const [editTask, setEditTask] = useState<Task | null>(null);
 
   const token = localStorage.getItem("USER");
-  const parsedToken = JSON.parse(token);
+  let parsedToken;
+  if (token !== null) {
+    parsedToken = JSON.parse(token);
+  } else {
+    throw new Error("Token is null. Cannot parse.");
+  }
 
   useEffect(() => {
     fetchData();
@@ -31,74 +49,41 @@ const Board = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("https://thealterofficebackend.onrender.com/todo/get", {
-        headers: {
-          Authorization: parsedToken.token,
-        },
-      });
+      const res = await axios.get(
+        "https://thealterofficebackend.onrender.com/todo/get",
+        {
+          headers: {
+            Authorization: parsedToken.token,
+          },
+        }
+      );
       setToDData(res.data.data);
     } catch (error) {
       console.log(error);
     }
   };
+
   const handleClose = () => setShow(false);
-  const handleShow = () => {
-    setShow(true);
-  };
+  const handleShow = () => setShow(true);
   const handleEditClose = () => setEditShow(false);
 
   const handleEditShow = (task: Task) => {
-    console.log(task); 
-    setEditTask(task); 
-    setEditShow(true); 
+    console.log(task);
+    setEditTask(task);
+    setEditShow(true);
   };
-  const handleDragEnd = (result) => {
-    const { source, destination } = result;
-    if (
-      !destination ||
-      (source.droppableId === destination.droppableId &&
-        source.index === destination.index)
-    ) {
-      return;
-    }
-
-    const cardsByStatus = { "TO-DO": [], "IN-PROGRESS": [], COMPLETED: [] };
-    toDoData.forEach((card) => {
-      cardsByStatus[card.status].push(card);
-    });
-
-    const [movedCard] = cardsByStatus[source.droppableId].splice(
-      source.index,
-      1
-    );
-    movedCard.status = destination.droppableId;
-    cardsByStatus[destination.droppableId].splice(
-      destination.index,
-      0,
-      movedCard
-    );
-
-    const updatedCards = [
-      ...cardsByStatus["TO-DO"],
-      ...cardsByStatus["IN-PROGRESS"],
-      ...cardsByStatus["COMPLETED"],
-    ];
-
-    setToDData(updatedCards);
-  };
-
-  
 
   const handleDelete = async (taskId: string) => {
     try {
-     
-      await axios.delete(`https://thealterofficebackend.onrender.com/todo/delete/${taskId}`, {
-        headers: {
-          Authorization: parsedToken.token,
-        },
-      });
+      await axios.delete(
+        `https://thealterofficebackend.onrender.com/todo/delete/${taskId}`,
+        {
+          headers: {
+            Authorization: parsedToken.token,
+          },
+        }
+      );
 
-     
       setToDData((prevTasks) =>
         prevTasks.filter((task) => task._id !== taskId)
       );
@@ -226,76 +211,57 @@ const Board = () => {
                   {status}
                 </p>
               </div>
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId={status}>
-                  {(provided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps}>
-                      {groupedCards[status].map((card, index) => (
-                        <Draggable
-                          key={card._id}
-                          draggableId={card._id}
-                          index={index}
-                        >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="pb-1 m-3 task-list"
+              <div>
+                {groupedCards[
+                  status as "TO-DO" | "IN-PROGRESS" | "COMPLETED"
+                ].map((card) => (
+                  <div key={card._id} className="pb-1 m-3 task-list">
+                    <div className="card">
+                      <CardBody
+                        className="d-flex flex-column justify-content-between"
+                        style={{ height: "100%" }}
+                      >
+                        <div className="d-flex flex-row justify-content-between align-items-center">
+                          <p>{card.task_name}</p>
+                          <UncontrolledDropdown className="float-end">
+                            <DropdownToggle
+                              className="arrow-none"
+                              color="white"
                             >
-                              <div className="card">
-                                <CardBody
-                                  className="d-flex flex-column justify-content-between"
-                                  style={{ height: "100%" }}
-                                >
-                                  <div className="d-flex flex-row justify-content-between align-items-center">
-                                    <p> {card.task_name}</p>
-                                    <UncontrolledDropdown className="float-end">
-                                      <DropdownToggle
-                                        className="arrow-none"
-                                        color="white"
-                                      >
-                                        <BsThreeDots />
-                                      </DropdownToggle>
-                                      <DropdownMenu className="dropdown-menu-end">
-                                        <DropdownItem
-                                          onClick={() => handleEditShow(card)}
-                                        >
-                                          Edit
-                                        </DropdownItem>
-                                        <DropdownItem
-                                          onClick={() => handleDelete(card._id)}
-                                        >
-                                          Delete
-                                        </DropdownItem>
-                                      </DropdownMenu>
-                                    </UncontrolledDropdown>
-                                  </div>
-                                  <div className="d-flex flex-row justify-content-between">
-                                    <p className="text-muted">
-                                      {card.category}
-                                    </p>
-                                    <p className="text-muted">
-                                      {new Date(
-                                        card?.due_date
-                                      ).toLocaleDateString("en-US", {
-                                        day: "2-digit",
-                                        month: "long",
-                                        year: "numeric",
-                                      })}
-                                    </p>
-                                  </div>
-                                </CardBody>
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
+                              <BsThreeDots />
+                            </DropdownToggle>
+                            <DropdownMenu className="dropdown-menu-end">
+                              <DropdownItem
+                                onClick={() => handleEditShow(card)}
+                              >
+                                Edit
+                              </DropdownItem>
+                              <DropdownItem
+                                onClick={() => handleDelete(card._id)}
+                              >
+                                Delete
+                              </DropdownItem>
+                            </DropdownMenu>
+                          </UncontrolledDropdown>
+                        </div>
+                        <div className="d-flex flex-row justify-content-between">
+                          <p className="text-muted">{card.category}</p>
+                          <p className="text-muted">
+                            {new Date(card?.due_date).toLocaleDateString(
+                              "en-US",
+                              {
+                                day: "2-digit",
+                                month: "long",
+                                year: "numeric",
+                              }
+                            )}
+                          </p>
+                        </div>
+                      </CardBody>
                     </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
+                  </div>
+                ))}
+              </div>
             </div>
           </Col>
         ))}
@@ -311,8 +277,7 @@ const Board = () => {
         handleClose={handleEditClose}
         type="EDIT"
         fetch={fetchData}
-        editTask={editTask}
-      />
+        editTask={editTask || undefined}      />
     </Container>
   );
 };
