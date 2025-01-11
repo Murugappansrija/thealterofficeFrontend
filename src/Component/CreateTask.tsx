@@ -6,15 +6,15 @@ import * as Yup from "yup";
 interface Task {
   _id: string;
   task_name: string;
-  due_date: string; // ISO 8601 Date as a string
+  due_date: string; 
   status: string;
   category: string;
   createdBy: string;
-  createdAt: string; // ISO 8601 Date as a string
+  createdAt: string;
   __v: number;
-  attachment: string | null; // Optional attachment
+  attachment: string | null; 
   description: string;
-  updatedAt: string; // ISO 8601 Date as a string
+  updatedAt: string; 
 }
 
 interface CreateTaskProps {

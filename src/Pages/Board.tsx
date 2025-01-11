@@ -14,15 +14,15 @@ import CreateTask from "../Component/CreateTask";
 interface Task {
   _id: string;
   task_name: string;
-  description?: string; // Optional property
-  due_date: string; // ISO date format
-  status: string; // Enum-like string
+  description?: string; 
+  due_date: string; 
+  status: string; 
   category: string;
   createdBy: string;
-  createdAt: string; // ISO date format
-  updatedAt: string; // ISO date format
+  createdAt: string;
+  updatedAt: string; 
   __v: number;
-  attachment?: string | null; // Optional property
+  attachment?: string | null; 
 }
 
 const Board = () => {
