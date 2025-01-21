@@ -111,7 +111,6 @@ const CreateTask: React.FC<CreateTaskProps> = ({
                   <ErrorMessage name="taskName" component="div" />
                 </div>
 
-                {/* Description */}
                 <Field
                   as="textarea"
                   name="description"
@@ -131,7 +130,6 @@ const CreateTask: React.FC<CreateTaskProps> = ({
                   <ErrorMessage name="taskName" component="div" />
                 </div>
 
-                {/* Category Buttons */}
                 <div className="d-flex flex-column flex-sm-row justify-content-sm-between mt-3">
                   <div className="mt-2">
                     <p
@@ -183,7 +181,6 @@ const CreateTask: React.FC<CreateTaskProps> = ({
                     </div>
                   </div>
 
-                  {/* Due Date */}
                   <div className="mt-2">
                     <p
                       className="m-0 fw-semibold"
@@ -211,7 +208,6 @@ const CreateTask: React.FC<CreateTaskProps> = ({
                     </div>
                   </div>
 
-                  {/* Status */}
                   <div className="mt-2">
                     <p
                       className="m-0 fw-semibold"
@@ -245,7 +241,6 @@ const CreateTask: React.FC<CreateTaskProps> = ({
                   </div>
                 </div>
 
-                {/* Attachment */}
                 <div className="mt-3">
                   <p
                     className="m-0 fw-semibold mb-2"

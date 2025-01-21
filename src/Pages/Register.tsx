@@ -1,43 +1,44 @@
-import React from "react";
-import { useState } from "react";
-
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { MdOutlineEventNote } from "react-icons/md";
-import Cover from "../assets/coverImg.png";
 import axios from "axios";
-const Login: React.FC = () => {
+import Cover from "../assets/coverImg.png";
+
+const Register: React.FC = () => {
   const navigate = useNavigate();
 
   const [formValue, setForm] = useState({
+    userName: "",
     email: "",
     password: "",
   });
-
+  console.log(formValue);
   const handleChange = ({ target }: any) => {
     const { name, value } = target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-  console.log(formValue);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "https://thealterofficebackend.onrender.com/user/login",
+        "https://thealterofficebackend.onrender.com/user/add",
         formValue
       );
-      if (res.data.statusCode === 200) {
-        localStorage.setItem("USER", JSON.stringify(res.data.data));
-        navigate("/home");
+      console.log(res);
+      if (res.data.statusCode === 201) {
+        navigate("/");
       }
     } catch (error: any) {
       console.log(error.message);
     }
   };
+
   return (
     <Container
       fluid
-      className=" vh-100 d-flex justify-content-center align-items-center"
+      className="vh-100 d-flex justify-content-center align-items-center"
       style={{ overflow: "hidden", position: "relative" }}
     >
       <Row className="w-100">
@@ -46,10 +47,10 @@ const Login: React.FC = () => {
           className="d-flex flex-column justify-content-center align-items-center text-white"
         >
           <div
-            className="d-flex justify-content-start flex-column text-center "
+            className="d-flex justify-content-start flex-column text-center"
             style={{ width: "320px" }}
           >
-            <div className="d-flex flex-row  align-items-center text-center">
+            <div className="d-flex flex-row align-items-center text-center">
               <MdOutlineEventNote
                 size={26}
                 style={{ color: "#7B1984" }}
@@ -77,7 +78,17 @@ const Login: React.FC = () => {
                 <div>
                   <Form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                      <p className="h5">Login</p>
+                      <p className="h5">Register</p>
+                    </div>
+
+                    <div className="mb-3">
+                      <Form.Control
+                        type="text"
+                        id="userName"
+                        name="userName"
+                        onChange={handleChange}
+                        placeholder="Enter your username"
+                      />
                     </div>
 
                     <div className="mb-3">
@@ -100,26 +111,21 @@ const Login: React.FC = () => {
                       />
                     </div>
 
-                    <p style={{ color: "black" }}>
-                      For testing email: admin@gmail.com, password: 12345
-                    </p>
-
+              
                     <Button
                       variant="primary"
                       type="submit"
                       className="w-100 mt-2"
                     >
-                      Login
+                      Register
                     </Button>
                     <p className="text-muted mt-3">
-                      Don't have account <Link to="/register">Register</Link>{" "}
-                      here
+                      have account <Link to="/">Login</Link> here
                     </p>
                   </Form>
                 </div>
               </div>
             </div>
-        
           </div>
         </Col>
 
@@ -165,7 +171,6 @@ const Login: React.FC = () => {
                   style={{
                     width: "100%",
                     height: "100%",
-
                     position: "relative",
                   }}
                 />
@@ -178,4 +183,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;

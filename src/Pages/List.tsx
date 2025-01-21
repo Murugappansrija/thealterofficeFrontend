@@ -185,7 +185,16 @@ const List = () => {
 
           return (
             <tr key={_id}>
-              <td className="p-2">{task_name}</td>
+              {task.status === "COMPLETED" ? (
+                <td
+                  className="p-2 "
+                  style={{ textDecoration: "line-through" }}
+                >
+                  {task_name}
+                </td>
+              ) : (
+                <td className="p-2">{task_name}</td>
+              )}
               {!mobileView && (
                 <>
                   <td className="p-2">{formattedDueDate}</td>

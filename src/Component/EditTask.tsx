@@ -40,12 +40,15 @@ const EditTask: React.FC<EditTaskProps> = ({
     throw new Error("Token is null. Cannot parse.");
   }
   const user_id = parsedToken?.userIsExist?._id;
-
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0]; 
+  };
   const initialValues = {
     task_name: editTask ? editTask.task_name : "",
     description: editTask ? editTask.description : "",
-    due_date: editTask ? editTask.due_date : "",
-    status: editTask ? editTask.status : "TO-DO",
+    due_date: editTask.due_date ? formatDate(editTask.due_date) : "",
+    status: editTask ? editTask.status : "",
     category: editTask ? editTask.category : "",
     createdBy: user_id,
     attachment: null,
@@ -126,7 +129,6 @@ const EditTask: React.FC<EditTaskProps> = ({
             >
               {({ setFieldValue, values }) => (
                 <Form>
-                  {/* Task Title */}
                   <Field
                     name="task_name"
                     placeholder="Task Title"
@@ -147,7 +149,6 @@ const EditTask: React.FC<EditTaskProps> = ({
                     <ErrorMessage name="taskName" component="div" />
                   </div>
 
-                  {/* Description */}
                   <Field
                     as="textarea"
                     name="description"
@@ -167,7 +168,6 @@ const EditTask: React.FC<EditTaskProps> = ({
                     <ErrorMessage name="taskName" component="div" />
                   </div>
 
-                  {/* Category Buttons */}
                   <div className="d-flex flex-column flex-sm-row justify-content-sm-between mt-3">
                     <div className="mt-2">
                       <p
@@ -222,7 +222,6 @@ const EditTask: React.FC<EditTaskProps> = ({
                       </div>
                     </div>
 
-                    {/* Due Date */}
                     <div className="mt-2">
                       <p
                         className="m-0 fw-semibold"
@@ -235,7 +234,6 @@ const EditTask: React.FC<EditTaskProps> = ({
                         name="due_date"
                         required
                         style={{
-                         
                           height: "32px",
                           marginTop: "5px",
                           border: "1px solid #ccc",
@@ -251,7 +249,6 @@ const EditTask: React.FC<EditTaskProps> = ({
                       </div>
                     </div>
 
-                    {/* Status */}
                     <div className="mt-2">
                       <p
                         className="m-0 fw-semibold"
@@ -264,7 +261,6 @@ const EditTask: React.FC<EditTaskProps> = ({
                         name="status"
                         required
                         style={{
-                         
                           height: "32px",
                           marginTop: "5px",
                           border: "1px solid #ccc",
@@ -285,7 +281,6 @@ const EditTask: React.FC<EditTaskProps> = ({
                     </div>
                   </div>
 
-                  {/* Attachment */}
                   <div className="mt-3">
                     <p
                       className="m-0 fw-semibold mb-2"

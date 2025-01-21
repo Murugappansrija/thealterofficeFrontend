@@ -9,6 +9,14 @@ import "./TopBar.css";
 
 const TopBar = () => {
   const navigate = useNavigate();
+  const token = localStorage.getItem("USER");
+  let parsedToken;
+  if (token !== null) {
+    parsedToken = JSON.parse(token);
+  } else {
+    throw new Error("Token is null. Cannot parse.");
+  }
+  const userName = parsedToken?.userIsExist?.userName;
   const handleLogOut = () => {
     localStorage.removeItem("USER");
     navigate("/");
@@ -58,7 +66,7 @@ const TopBar = () => {
                 marginLeft: "5px",
               }}
             >
-              Aravind
+              {userName}
             </p>
           </div>
         </Col>
