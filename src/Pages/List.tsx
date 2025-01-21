@@ -15,12 +15,19 @@ import {
   UncontrolledDropdown,
 } from "reactstrap";
 import { BsThreeDots } from "react-icons/bs";
+import EditTask from "../Component/EditTask";
 
 interface Task {
+  _id: string;
   task_name: string;
   due_date: string;
   status: string;
   category: string;
+  createdBy: string;
+  createdAt: string;
+  description: string;
+  updatedAt: string;
+  attachment: string | null;
 }
 
 const List = () => {
@@ -75,7 +82,18 @@ const List = () => {
   };
 
   const handleEditClose = () => setEditShow(false);
-  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [editTask, setEditTask] = useState<Task>({
+    _id: "",
+    task_name: "",
+    due_date: "",
+    status: "",
+    category: "",
+    createdBy: "",
+    createdAt: "",
+    description: "",
+    updatedAt: "",
+    attachment: "",
+  });
 
   const handleEditShow = (task: Task) => {
     console.log(task);
@@ -380,12 +398,12 @@ const List = () => {
         type="CREATE"
         fetch={fetchData}
       />
-      <CreateTask
+      <EditTask
         show={editShow}
         handleClose={handleEditClose}
         type="EDIT"
         fetch={fetchData}
-        editTask={editTask || undefined}
+        editTask={editTask}
       />
     </Container>
   );

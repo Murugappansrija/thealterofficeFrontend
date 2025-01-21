@@ -10,19 +10,19 @@ import {
 import { BsThreeDots } from "react-icons/bs";
 import axios from "axios";
 import CreateTask from "../Component/CreateTask";
+import EditTask from "../Component/EditTask";
 
 interface Task {
   _id: string;
   task_name: string;
-  description?: string; 
-  due_date: string; 
-  status: string; 
+  due_date: string;
+  status: string;
   category: string;
   createdBy: string;
   createdAt: string;
-  updatedAt: string; 
-  __v: number;
-  attachment?: string | null; 
+  description: string;
+  updatedAt: string;
+  attachment: string | null;
 }
 
 const Board = () => {
@@ -33,7 +33,18 @@ const Board = () => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [editShow, setEditShow] = useState<boolean>(false);
-  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [editTask, setEditTask] = useState<Task>({
+    _id: "",
+    task_name: "",
+    due_date: "",
+    status: "",
+    category: "",
+    createdBy: "",
+    createdAt: "",
+    description: "",
+    updatedAt: "",
+    attachment: "",
+  });
 
   const token = localStorage.getItem("USER");
   let parsedToken;
@@ -272,12 +283,13 @@ const Board = () => {
         type="CREATE"
         fetch={fetchData}
       />
-      <CreateTask
+      <EditTask
         show={editShow}
         handleClose={handleEditClose}
         type="EDIT"
         fetch={fetchData}
-        editTask={editTask || undefined}      />
+        editTask={editTask}
+      />
     </Container>
   );
 };
