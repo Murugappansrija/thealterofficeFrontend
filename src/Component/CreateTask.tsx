@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Col, Row, Modal } from "react-bootstrap";
+import {Row, Modal } from "react-bootstrap";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
